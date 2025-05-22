@@ -60,7 +60,9 @@ async function run() {
 
     //lost and found related apis
     app.get('/allItems', async(req, res) => {
-      const result = await postsCollection.find().toArray();
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      const result = await postsCollection.find().skip(page * size).limit(size).toArray();
       res.send(result);
     })
 
