@@ -65,6 +65,10 @@ async function run() {
     })
 
     //get latest posts
+    app.get('/latestPosts', async(req, res) => {
+      const result = await postsCollection.find().sort( { date: -1}).limit(6).toArray();
+      res.send(result);
+    })
 
 
   } finally {
