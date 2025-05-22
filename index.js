@@ -70,6 +70,12 @@ async function run() {
       res.send(result);
     })
 
+    //get the total count of posts
+    app.get('/totalPostsCount', async(req, res) => {
+      const count = await postsCollection.estimatedDocumentCount();
+      res.send({ count });
+    })
+
 
   } finally {
     // Ensures that the client will close when you finish/error
