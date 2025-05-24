@@ -2,11 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const cors = require('cors');
 const app = express();
 
+//middlewares
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -18,6 +19,23 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+//verify
+const verifyUser = (req, res, next) => {
+  const token = req?.cookies?.token;
+  if(!token){
+    return res.status(401).send({ message: 'Unauthorized Access'});
+  }
+
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if(err){
+      return res.status(401).send({ message: 'Unauthorized Access'});
+    }
+    res.user = decoded;
+  })
+
+  next();
+}
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jpi5bfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,6 +46,8 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+//auth related apis
 
 app.post('/jwt', (req, res) => {
   const user = req.body;
@@ -67,7 +87,7 @@ async function run() {
     })
 
     //get latest posts
-    app.get('/latestPosts', async(req, res) => {
+    app.get('/latestPosts', logger, async(req, res) => {
       const result = await postsCollection.find().sort( { date: -1}).limit(6).toArray();
       res.send(result);
     })
@@ -76,6 +96,14 @@ async function run() {
     app.get('/totalPostsCount', async(req, res) => {
       const count = await postsCollection.estimatedDocumentCount();
       res.send({ count });
+    })
+
+    //get a post details
+    app.get('/items/:id', verifyUser, async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId };
+      const result = await postsCollection.findOne(query);
+      res.send(result);
     })
 
 
