@@ -30,7 +30,7 @@ const verifyUser = (req, res, next) => {
     if(err){
       return res.status(401).send({ message: 'Unauthorized Access'});
     }
-    res.user = decoded;
+    req.user = decoded;
   })
 
   next();
