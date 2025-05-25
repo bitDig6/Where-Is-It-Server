@@ -106,6 +106,17 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/myItems', verifyUser, async (req, res) => {
+      const email = req.query.email;
+      if(email !== req.user.email){
+        return res.status(403).send({ message: 'Forbidden Access'});
+      }
+
+      const query = { userEmail: email};
+      const result = await postsCollection.find(query).toArray();
+      res.send(result);
+    })
+
     //post a lost or found item
     app.post('/allItems', verifyUser, async(req, res) => {
       const newPost = req.body;
