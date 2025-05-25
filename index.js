@@ -101,7 +101,7 @@ async function run() {
     //get a post details
     app.get('/items/:id', verifyUser, async(req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId };
+      const query = { _id: new ObjectId(id) };
       const result = await postsCollection.findOne(query);
       res.send(result);
     })
