@@ -106,6 +106,13 @@ async function run() {
       res.send(result);
     })
 
+    //post a lost or found item
+    app.post('/allItems', verifyUser, async(req, res) => {
+      const newPost = req.body;
+      const result = await postsCollection.insertOne(newPost);
+      res.send(result);
+    })
+
 
   } finally {
     // Ensures that the client will close when you finish/error
