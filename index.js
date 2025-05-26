@@ -106,6 +106,7 @@ async function run() {
       res.send(result);
     })
 
+    //get user posts
     app.get('/myItems', verifyUser, async (req, res) => {
       const email = req.query.email;
       if(email !== req.user.email){
@@ -121,6 +122,36 @@ async function run() {
     app.post('/allItems', verifyUser, async(req, res) => {
       const newPost = req.body;
       const result = await postsCollection.insertOne(newPost);
+      res.send(result);
+    })
+
+    //update a post
+    app.patch('/items/:id', verifyUser, async(req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: new ObjectId(id)};
+      const updatedDoc = {
+        $set: {
+          title: data.title,
+          postType: data.postType,
+          imageUrl: data.imageUrl,
+          category: data.category,
+          location: data.location,
+          date: data.date,
+          description: data.description,
+          isRecovered: data.isRecovered
+        }
+      };
+
+      const result = await postsCollection.deleteOne(filter, updatedDoc);
+      res.send(result);
+    })
+
+    //delete a post
+    app.delete('/items/:id', verifyUser, async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await postsCollection.deleteOne(query);
       res.send(result);
     })
 
