@@ -170,7 +170,7 @@ async function run() {
       const filter = {_id: new ObjectId(id)};
       const updatedDoc = {
         $set: {
-          isRecovered: data.Recovered
+          isRecovered: data.isRecovered
         }
       }
       const result = await recoveredCollection.updateOne(filter, updatedDoc);
