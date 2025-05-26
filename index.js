@@ -135,7 +135,7 @@ async function run() {
     })
 
     //post a recovered item
-    app.post('/recoveredItems', verifyUser, async(req, res) => {
+    app.post('/allRecovered', verifyUser, async(req, res) => {
       const recoveredItem = req.body;
       const result = await recoveredCollection.insertOne(recoveredItem);
       res.send(result);
@@ -174,7 +174,7 @@ async function run() {
         }
       }
       const result = await recoveredCollection.updateOne(filter, updatedDoc);
-      return result;
+      res.send(result);
     })
 
 
