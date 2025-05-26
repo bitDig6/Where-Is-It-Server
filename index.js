@@ -75,8 +75,9 @@ async function run() {
     // await client.db("admin").command({ ping: 1 });
     // console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-     const database = client.db("LostAndFound");
+    const database = client.db("LostAndFound");
     const postsCollection = database.collection("posts");
+    const recoveredCollection = database.collection("recoveredItems");
 
     //lost and found related apis
     app.get('/allItems', async(req, res) => {
@@ -118,10 +119,25 @@ async function run() {
       res.send(result);
     })
 
+    //get all recovered items added by users
+    app.get('/allRecovered', verifyUser, async(req, res) => {
+      const email = req.query.email;
+      const query = { userEmail: email};
+      const result = await recoveredCollection.find(query).toArray();
+      res.send(result);
+    })
+
     //post a lost or found item
     app.post('/allItems', verifyUser, async(req, res) => {
       const newPost = req.body;
       const result = await postsCollection.insertOne(newPost);
+      res.send(result);
+    })
+
+    //post a recovered item
+    app.post('/recoveredItems', verifyUser, async(req, res) => {
+      const recoveredItem = req.body;
+      const result = await recoveredCollection.insertOne(recoveredItem);
       res.send(result);
     })
 
@@ -146,6 +162,21 @@ async function run() {
       const result = await postsCollection.updateOne(filter, updatedDoc);
       res.send(result);
     })
+
+    //update only the recovery status of an item
+    app.patch('/items/:id', verifyUser, async(req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = {_id: new ObjectId(id)};
+      const updatedDoc = {
+        $set: {
+          isRecovered: data.isRecovered
+        }
+      }
+      const result = await recoveredCollection.updateOne(filter, updatedDoc);
+      return result;
+    })
+
 
     //delete a post
     app.delete('/items/:id', verifyUser, async(req, res) => {
