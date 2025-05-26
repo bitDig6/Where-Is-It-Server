@@ -106,7 +106,7 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/myItems', verifyUser, async (req, res) => {
+    app.get('/allItems', verifyUser, async (req, res) => {
       const email = req.query.email;
       if(email !== req.user.email){
         return res.status(403).send({ message: 'Forbidden Access'});
