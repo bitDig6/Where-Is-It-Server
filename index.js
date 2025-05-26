@@ -143,7 +143,7 @@ async function run() {
         }
       };
 
-      const result = await postsCollection.deleteOne(filter, updatedDoc);
+      const result = await postsCollection.updateOne(filter, updatedDoc);
       res.send(result);
     })
 
