@@ -22,13 +22,13 @@ app.use(cookieParser());
 //verify
 const verifyUser = (req, res, next) => {
   const token = req?.cookies?.token;
-  if(!token){
-    return res.status(401).send({ message: 'Unauthorized Access'});
+  if (!token) {
+    return res.status(401).send({ message: 'Unauthorized Access' });
   }
 
   jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-    if(err){
-      return res.status(401).send({ message: 'Unauthorized Access'});
+    if (err) {
+      return res.status(401).send({ message: 'Unauthorized Access' });
     }
     req.user = decoded;
   })
@@ -56,7 +56,7 @@ app.post('/jwt', (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "strict"
-  }).send({ success: true});
+  }).send({ success: true });
 })
 
 app.post('/logout', (req, res) => {
@@ -64,7 +64,7 @@ app.post('/logout', (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "strict"
-  }).send({ success: true});
+  }).send({ success: true });
 })
 
 async function run() {
@@ -80,7 +80,7 @@ async function run() {
     const recoveredCollection = database.collection("recoveredItems");
 
     //lost and found related apis
-    app.get('/allItems', async(req, res) => {
+    app.get('/allItems', async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
       const result = await postsCollection.find().skip(page * size).limit(size).toArray();
@@ -88,19 +88,19 @@ async function run() {
     })
 
     //get latest posts
-    app.get('/latestPosts', async(req, res) => {
-      const result = await postsCollection.find().sort( { date: -1}).limit(6).toArray();
+    app.get('/latestPosts', async (req, res) => {
+      const result = await postsCollection.find().sort({ date: -1 }).limit(6).toArray();
       res.send(result);
     })
 
     //get the total count of posts
-    app.get('/totalPostsCount', async(req, res) => {
+    app.get('/totalPostsCount', async (req, res) => {
       const count = await postsCollection.estimatedDocumentCount();
       res.send({ count });
     })
 
     //get a post details
-    app.get('/items/:id', verifyUser, async(req, res) => {
+    app.get('/items/:id', verifyUser, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await postsCollection.findOne(query);
@@ -110,42 +110,42 @@ async function run() {
     //get user posts
     app.get('/myItems', verifyUser, async (req, res) => {
       const email = req.query.email;
-      if(email !== req.user.email){
-        return res.status(403).send({ message: 'Forbidden Access'});
+      if (email !== req.user.email) {
+        return res.status(403).send({ message: 'Forbidden Access' });
       }
 
-      const query = { userEmail: email};
+      const query = { userEmail: email };
       const result = await postsCollection.find(query).toArray();
       res.send(result);
     })
 
     //get all recovered items added by users
-    app.get('/allRecovered', verifyUser, async(req, res) => {
+    app.get('/allRecovered', verifyUser, async (req, res) => {
       const email = req.query.email;
-      const query = { userEmail: email};
+      const query = { userEmail: email };
       const result = await recoveredCollection.find(query).toArray();
       res.send(result);
     })
 
     //post a lost or found item
-    app.post('/allItems', verifyUser, async(req, res) => {
+    app.post('/allItems', verifyUser, async (req, res) => {
       const newPost = req.body;
       const result = await postsCollection.insertOne(newPost);
       res.send(result);
     })
 
     //post a recovered item
-    app.post('/allRecovered', verifyUser, async(req, res) => {
+    app.post('/allRecovered', verifyUser, async (req, res) => {
       const recoveredItem = req.body;
       const result = await recoveredCollection.insertOne(recoveredItem);
       res.send(result);
     })
 
     //update a post
-    app.patch('/items/:id', verifyUser, async(req, res) => {
+    app.patch('/items/:id', verifyUser, async (req, res) => {
       const id = req.params.id;
       const data = req.body;
-      const filter = { _id: new ObjectId(id)};
+      const filter = { _id: new ObjectId(id) };
       const updatedDoc = {
         $set: {
           title: data.title,
@@ -163,25 +163,10 @@ async function run() {
       res.send(result);
     })
 
-    //update only the recovery status of an item
-    app.patch('/items/:id', verifyUser, async(req, res) => {
-      const id = req.params.id;
-      const data = req.body;
-      const filter = {_id: new ObjectId(id)};
-      const updatedDoc = {
-        $set: {
-          isRecovered: data.isRecovered
-        }
-      }
-      const result = await recoveredCollection.updateOne(filter, updatedDoc);
-      res.send(result);
-    })
-
-
     //delete a post
-    app.delete('/items/:id', verifyUser, async(req, res) => {
+    app.delete('/items/:id', verifyUser, async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await postsCollection.deleteOne(query);
       res.send(result);
     })
@@ -196,9 +181,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send("Started Where Is It Server");
+  res.send("Started Where Is It Server");
 });
 
 app.listen(port, (req, res) => {
-    console.log('server started at Port: ', port);
+  console.log('server started at Port: ', port);
 })
