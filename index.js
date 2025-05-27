@@ -122,6 +122,9 @@ async function run() {
     //get all recovered items added by users
     app.get('/allRecovered', verifyUser, async (req, res) => {
       const email = req.query.email;
+      if (email !== req.user.email) {
+        return res.status(403).send({ message: 'Forbidden Access' });
+      };
       const query = { userEmail: email };
       const result = await recoveredCollection.find(query).toArray();
       res.send(result);
