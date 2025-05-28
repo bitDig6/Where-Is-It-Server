@@ -80,6 +80,14 @@ async function run() {
     const recoveredCollection = database.collection("recoveredItems");
 
     //lost and found related apis
+
+    //get the total count of posts
+    app.get('/totalPostsCount', async (req, res) => {
+      const count = await postsCollection.estimatedDocumentCount();
+      res.send({ count });
+    })
+
+    //get some posts from the total posts
     app.get('/allItems', async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
@@ -87,16 +95,25 @@ async function run() {
       res.send(result);
     })
 
+    //get posts by filters
+    app.get('/filteredItems', async (req, res) => {
+      const searchTermObj = req.query;
+    const filter = {
+      $or:
+        [
+          { title: { $regex: searchTermObj} },
+          { location: { $regex: searchTermObj} }
+        ]
+      };
+      
+      const result = await postsCollection.find(filter).toArray();
+      res.send(result);
+    })
+
     //get latest posts
     app.get('/latestPosts', async (req, res) => {
       const result = await postsCollection.find().sort({ date: -1 }).limit(6).toArray();
       res.send(result);
-    })
-
-    //get the total count of posts
-    app.get('/totalPostsCount', async (req, res) => {
-      const count = await postsCollection.estimatedDocumentCount();
-      res.send({ count });
     })
 
     //get a post details
