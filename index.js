@@ -97,12 +97,12 @@ async function run() {
 
     //get posts by filters
     app.get('/filteredItems', async (req, res) => {
-      const  { searchTermObj }= req.query;
+      const  search = req.query.search;
     const filter = {
       $or:
         [
-          { title: { $regex: searchTermObj} },
-          { location: { $regex: searchTermObj} }
+          { title: { $regex: search} },
+          { location: { $regex: search} }
         ]
       };
       
