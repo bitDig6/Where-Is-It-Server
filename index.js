@@ -77,6 +77,7 @@ async function run() {
 
     const database = client.db("LostAndFound");
     const postsCollection = database.collection("posts");
+    postsCollection.createIndex({ tile: "text", location: "text" });
     const recoveredCollection = database.collection("recoveredItems");
 
     //lost and found related apis
@@ -97,17 +98,15 @@ async function run() {
 
     //get posts by filters
     app.get('/filteredItems', async (req, res) => {
-      const  search = req.query.search;
-    const filter = {
-      $or:
-        [
-          { title: { $regex: search} },
-          { location: { $regex: search} }
-        ]
+      const search = req.query.search;
+      const filter = {
+        $text: {
+          $search: search
+        }
       };
-      
-      const result = await postsCollection.find(filter).toArray();
-      res.send(result);
+      const cursor = postsCollection.find(filter);
+      const result = await cursor.toArray();
+      res.send(result);  
     })
 
     //get latest posts
